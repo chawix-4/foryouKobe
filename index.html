@@ -23,28 +23,31 @@
 
         .container {
             position: relative;
-            width: 90%; 
-            max-width: 400px; 
+            width: 100%;
+            max-width: 400px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 20px;
+            margin: 0 auto;
         }
 
         .envelope-wrapper {
             position: relative;
-            width: 100%; 
+            width: 100%;
+            max-width: 300px;
             cursor: pointer;
             transition: transform 0.3s ease;
+            margin-top: 200px; 
         }
 
         .envelope-wrapper:hover {
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
 
         .envelope {
-            width: 100%; 
-            height: 200px; 
+            width: 100%;
+            aspect-ratio: 1.6/1;
             background: #ff4b6e;
             position: relative;
             border-radius: 5px;
@@ -65,42 +68,38 @@
             border-radius: 5px;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
         .letter {
             display: none;
-            width: 140%; 
-            max-width: 600px; 
-            background: #f9f9f9; 
-            padding: 20px; 
+            width: 90%;
+            max-width: 500px;
+            background: #f9f9f9;
+            padding: 20px;
             border-radius: 10px;
-            border: 2px solid #ff4b6e; 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); 
-            position: absolute;
-            top: -300px; 
-            transition: top 1s ease;
-            overflow-y: auto; 
-}
+            border: 2px solid #ff4b6e;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
 
         .letter.visible {
             display: block;
-            top: -100px; 
             animation: fadeIn 1s ease forwards;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translate(-50%, -45%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
         }
 
         .letter p {
             margin-bottom: 20px;
             line-height: 1.6;
-            font-size: 16px;
+            font-size: clamp(14px, 3.5vw, 16px);
             color: #333;
             white-space: pre-line;
         }
@@ -110,7 +109,7 @@
             bottom: 20px;
             right: 20px;
             color: white;
-            font-size: 14px;
+            font-size: clamp(12px, 3vw, 14px);
             font-style: italic;
         }
 
@@ -128,7 +127,7 @@
             width: 100%;
             text-align: center;
             color: #666;
-            font-size: 14px;
+            font-size: clamp(12px, 3vw, 14px);
             animation: bounce 2s infinite;
         }
 
@@ -137,20 +136,37 @@
             50% { transform: translateY(-5px); }
         }
 
-        @media (max-width: 600px) {
-            .envelope {
-                padding: 10px; 
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .envelope-wrapper {
+                margin-top: 150px;
             }
 
             .letter {
-                padding: 20px; 
+                width: 85%;
+                padding: 15px;
+                max-height: 70vh;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .envelope-wrapper {
+                margin-top: 100px;
+            }
+
+            .letter {
+                width: 90%;
+                padding: 12px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="envelope-wrapper" onclick="openEnvelope ()">
+        <div class="envelope-wrapper" onclick="openEnvelope()">
             <div class="envelope">
                 <div class="flap">
                     <span class="from">From: Chao</span>
@@ -181,38 +197,24 @@
 
         let isOpened = false;
 
-        async function typeMessage(element, message, delay = 100) {
-    element.textContent = '';
-    for (let i = 0; i < message.length; i++) {
-        element.textContent += message[i];
-        await new Promise(resolve => setTimeout(resolve, delay));
+        async function typeMessage(element, message, delay = 50) {
+            element.textContent = '';
+            for (let i = 0; i < message.length; i++) {
+                element.textContent += message[i];
+                await new Promise(resolve => setTimeout(resolve, delay));
 
-        if (message[i] === '.') {
-            await new Promise(resolve => setTimeout(resolve, 500)); 
+                if (message[i] === '.') {
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+            }
         }
-    }
-}
-    async function typeAllMessages() {
-    const messageElements = document.querySelectorAll('.message');
-    for (let i = 0; i < messages.length; i++) {
-        await typeMessage(messageElements[i], messages[i], 50); 
-    }
-}
 
-    function openEnvelope() {
-    if (!isOpened) {
-        isOpened = true;
-        const envelope = document.querySelector('.envelope');
-        const letter = document.querySelector('.letter');
-        const music = document.getElementById('backgroundMusic');
-        
-        envelope.classList.add('opened');
-        letter.classList.add('visible');
-        music.play();
-        
-        setTimeout(typeAllMessages, 1000); 
-    }
-}
+        async function typeAllMessages() {
+            const messageElements = document.querySelectorAll('.message');
+            for (let i = 0; i < messages.length; i++) {
+                await typeMessage(messageElements[i], messages[i]);
+            }
+        }
 
         function openEnvelope() {
             if (!isOpened) {
