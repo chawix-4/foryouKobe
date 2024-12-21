@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Kobe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            position: relative;
+            width: 90%; 
+            max-width: 400px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 100%; 
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .envelope-wrapper:hover {
+            transform: scale(1.05);
+        }
+
+        .envelope {
+            width: 100%; 
+            height: 200px; 
+            background: #ff4b6e;
+            position: relative;
+            border-radius: 5px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 1s ease;
+        }
+
+        .flap {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #ff3361;
+            transform-origin: top;
+            transition: transform 1s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .letter {
+            display: none;
+            width: 140%; 
+            max-width: 600px; 
+            background: #f9f9f9; 
+            padding: 20px; 
+            border-radius: 10px;
+            border: 2px solid #ff4b6e; 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); 
+            position: absolute;
+            top: -300px; 
+            transition: top 1s ease;
+            overflow-y: auto; 
+}
+
+        .letter.visible {
+            display: block;
+            top: -100px; 
+            animation: fadeIn 1s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .letter p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 16px;
+            color: #333;
+            white-space: pre-line;
+        }
+
+        .from {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: white;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        .envelope.opened {
+            transform: translateY(20px);
+        }
+
+        .envelope.opened .flap {
+            transform: rotateX(180deg);
+        }
+
+        .click-prompt {
+            position: absolute;
+            bottom: -40px;
+            width: 100%;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @media (max-width: 600px) {
+            .envelope {
+                padding: 10px; 
+            }
+
+            .letter {
+                padding: 20px; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="envelope-wrapper" onclick="openEnvelope ()">
+            <div class="envelope">
+                <div class="flap">
+                    <span class="from">From: Chao</span>
+                </div>
+            </div>
+            <div class="click-prompt">Click to open, Kobe</div>
+        </div>
+        
+        <div class="letter" id="letter">
+            <p class="message"></p>
+            <p class="message"></p>
+            <p class="message"></p>
+        </div>
+    </div>
+
+    <audio id="backgroundMusic">
+        <source src="https://chawix-4.github.io/foryouKobe/tingin.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const messages = [
+            `You might find this message random since we aren't close and we don't even talk, but here I am, confessing something I've been meaning to say. I wanted to send this after the first semester and before the year ends. Why? Para dili ko ma awkward kung naay klase, and also because I want to say everything I've been holding back before the year 2025 starts—no regrets hehe. Actually, nag duha-duha ko kung isend ba jud nako nis imoha kay basin matingala ka ba. Pero gusto lang jud nako mapagawas tanan nabati nako hahahahah.`,
+
+            `Kobe, I admire you. I don't know you well—honestly, I don't know much about you at all—but I admire how smart and dedicated you are when it comes to your studies. From what I've observed, you seem like a good person. And, well... I find you very pogi hahaha. Pag kauban nimo mga BH boys, ikaw jud ako una mapansin hahaha🙈 This feeling started out of nowhere, and since then, I've been silently admiring you from afar. Kung kapansin ka dati sig panawag si Erika nimo, gina tuyo na niya kay kabalo man gud siya HAHAHHA. Gina tuyo na niya kay pag naa ka sa akong duol kay dili ko makahinga ay. Wako kabalo ngano hahaha.`,
+
+            `Btw, Kobe, I don't have any intentions or hopes of you reciprocating my feelings, and I'm not saying this to get a chance. I just wanted to express how I feel. If you have a girlfriend, please feel free to ignore this message, and don't worry—I won't bother you any further. Lastly, I hope dili nimo ikalat ang kani na confession 😞🙏🏻 ayaw jud isaba bisan kinsa please huhuhuhu. Wala pd nako giingnan ako mga friends about ani HAHAHAHA. Thank you for reading, Kobe, and I hope you have a great day! Take care.`
+        ];
+
+        let isOpened = false;
+
+        async function typeMessage(element, message, delay = 100) {
+    element.textContent = '';
+    for (let i = 0; i < message.length; i++) {
+        element.textContent += message[i];
+        await new Promise(resolve => setTimeout(resolve, delay));
+
+        if (message[i] === '.') {
+            await new Promise(resolve => setTimeout(resolve, 500)); 
+        }
+    }
+}
+    async function typeAllMessages() {
+    const messageElements = document.querySelectorAll('.message');
+    for (let i = 0; i < messages.length; i++) {
+        await typeMessage(messageElements[i], messages[i], 50); 
+    }
+}
+
+    function openEnvelope() {
+    if (!isOpened) {
+        isOpened = true;
+        const envelope = document.querySelector('.envelope');
+        const letter = document.querySelector('.letter');
+        const music = document.getElementById('backgroundMusic');
+        
+        envelope.classList.add('opened');
+        letter.classList.add('visible');
+        music.play();
+        
+        setTimeout(typeAllMessages, 1000); 
+    }
+}
+
+        function openEnvelope() {
+            if (!isOpened) {
+                isOpened = true;
+                const envelope = document.querySelector('.envelope');
+                const letter = document.querySelector('.letter');
+                const music = document.getElementById('backgroundMusic');
+                
+                envelope.classList.add('opened');
+                letter.classList.add('visible');
+                music.play();
+                
+                setTimeout(typeAllMessages, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
